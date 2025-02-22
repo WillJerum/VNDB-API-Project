@@ -8,6 +8,24 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const onRequest = (request, response) => {
   console.log(request.url);
+
+  const parsedUrl = url.parse(request.url, true); // Parse the URL
+
+  switch (parsedUrl.pathname) {
+    case '/':
+      htmlHandler.getIndex(request, response);
+      break;
+    case '/style.css':
+      htmlHandler.getCss(request, response);
+      break;
+    case '/testSearch':
+      apiHandler.testSearch(request, response);
+      break;
+    default:
+      htmlHandler.getIndex(request, response);
+      //apiHandler.notFound(request, response);
+      break;
+  }
 };
 
 http.createServer(onRequest).listen(port, () => {
