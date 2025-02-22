@@ -7,9 +7,9 @@ const apiHandler = require('./apiResponses.js');
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const onRequest = (request, response) => {
-  console.log(request.url);
 
   const parsedUrl = url.parse(request.url, true); // Parse the URL
+
 
   switch (parsedUrl.pathname) {
     case '/':
@@ -18,8 +18,8 @@ const onRequest = (request, response) => {
     case '/style.css':
       htmlHandler.getCss(request, response);
       break;
-    case '/testSearch':
-      apiHandler.testSearch(request, response);
+    case '/pairSearch':
+      apiHandler.pairSearch(request, response);
       break;
     default:
       htmlHandler.getIndex(request, response);

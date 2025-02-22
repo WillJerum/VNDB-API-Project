@@ -11,11 +11,29 @@ const jsonData = JSON.parse(rawData);
  * @returns {object|array|null} - The matched object(s) or null if not found.
  */
 const searchJSON = (key, value) => {
-    const cleanValue = value.toLowerCase().trim();
+    const cleanValue = decodeURIComponent(value).toLowerCase().trim(); // Clean up response
+    result = {}; // Store result in memory
 
-    return jsonData.filter(obj => 
-        obj[key] && obj[key].toString().toLowerCase().includes(cleanValue) // Case-insensitive partial match
-    );
+    switch (key) {
+        case 'id':
+           result = jsonData.find(obj => obj[key] == cleanValue);
+            break;
+        case 'name':
+        case 'aliases':
+            result = jsonData.filter(obj =>
+                (obj['aliases'] && obj['aliases'].toString().toLowerCase().includes(cleanValue)) || 
+                (obj['name'] && obj['name'].toString().toLowerCase().includes(cleanValue)))
+            break;
+        default: 
+           result = jsonData.filter(obj => 
+               obj[key] && obj[key].toString().toLowerCase().includes(cleanValue) // Case-insensitive partial match
+           );
+           break;
+    }
+
+    return result;
+
+    
 }
 
 module.exports = { searchJSON };
