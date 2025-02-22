@@ -1,23 +1,72 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>VNDB API Project</title>
-  <meta name="author" content="">
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link href="/style.css" rel="stylesheet">
-
-  <script></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add a Tag</title>
 </head>
-
 <body>
+    <h2>Add/Update a Tag</h2>
+    <form id="tagForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br><br>
 
-  <p>This is a placeholder HTML page while the client page is being implemented. Please carry out all operations in the browser console.</p>
+        <label for="description">Description:</label>
+        <input type="text" id="description" required><br><br>
 
-  
+        <label for="aliases">Aliases (comma-separated):</label>
+        <input type="text" id="aliases"><br><br>
+
+        <label for="cat">Category:</label>
+        <input type="text" id="cat" required><br><br>
+
+        <label for="parents">Parent IDs (comma-separated):</label>
+        <input type="text" id="parents"><br><br>
+
+        <label for="vns">VNs Count:</label>
+        <input type="number" id="vns" required><br><br>
+
+        <label for="meta">Meta:</label>
+        <input type="checkbox" id="meta"><br><br>
+
+        <label for="applicable">Applicable:</label>
+        <input type="checkbox" id="applicable"><br><br>
+
+        <label for="searchable">Searchable (VNDB use only):</label>
+        <input type="checkbox" id="searchable" checked><br><br>
+
+        <button type="submit">Add New Tag</button>
+        <button type="update">Update Existing Tag</button>
+    </form>
+
+    <script>
+        document.getElementById("tagForm").addEventListener("add", function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Collect form data
+            const tag = {
+                name: document.getElementById("name").value,
+                description: document.getElementById("description").value,
+                aliases: document.getElementById("aliases").value.split(',').map(a => a.trim()).filter(a => a), // Convert to array
+                cat: document.getElementById("cat").value,
+                parents: document.getElementById("parents").value.split(',').map(p => parseInt(p.trim())).filter(Number), // Convert to array of numbers
+                vns: parseInt(document.getElementById("vns").value),
+                meta: document.getElementById("meta").checked,
+                applicable: document.getElementById("applicable").checked,
+                searchable: document.getElementById("searchable").checked
+            };
+
+            // Send the tag as a JSON request
+            fetch("/addTag", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(tag)
+            })
+            .then(response => response.json())
+            .catch(error => console.error("Error:", error));
+        });
+
+        
+    </script>
 </body>
-
 </html>

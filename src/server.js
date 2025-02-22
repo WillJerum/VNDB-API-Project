@@ -24,6 +24,9 @@ const onRequest = (request, response) => {
     case '/getParents':
       apiHandler.getParents(request, response);
       break;
+    case '/addTag':
+      apiHandler.addTag(request, response);
+      break;
     default:
       htmlHandler.getIndex(request, response);
       //apiHandler.notFound(request, response);

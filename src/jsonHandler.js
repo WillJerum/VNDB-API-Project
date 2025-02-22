@@ -54,4 +54,18 @@ const getParents = (id) => {
     return result.length > 0 ? result : null; // Returns result if array is not empty, null otherwise
 }
 
-module.exports = { searchJSON, getParents };
+/**
+ * Function to create a new tag
+ * @param {object} tag - tag data to be added
+ * @returns {none} - This function returns nothing.
+ */
+const addTag = (newTag) => {
+    // Dynamically assign ID
+    const maxId = jsonData.reduce((max, obj) => (obj.id > max ? obj.id : max), 0);
+    newTag.id = maxId + 1; // Assign next available ID
+
+    jsonData.push(newTag);
+    console.log(`Tag "${newTag.name}" has been added at ID ${newTag.id}`);
+};
+
+module.exports = { searchJSON, getParents, addTag };

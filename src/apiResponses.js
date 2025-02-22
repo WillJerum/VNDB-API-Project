@@ -1,5 +1,5 @@
 const url = require('url'); // Import URL module
-const json = require('./jsonSearch.js');
+const json = require('./jsonHandler.js');
 
 const pairSearch = (request, response) => {
     const parsedUrl = url.parse(request.url, true); // Parse the URL
@@ -34,4 +34,28 @@ const getParents = (request, response) => {
   }
 };
 
-module.exports = { pairSearch, getParents };
+const addTag = (request, response) => {
+    if (request.method === 'POST') {
+        let body = '';
+        request.on('data', chunk => {
+            body += chunk.toString(); // Convert buffer to string
+        });
+        request.on('end', () => {
+            try {
+                const newTag = JSON.parse(body);
+                json.addTag(newTag);
+                response.writeHead(201, { 'Content-Type': 'application/json' }); // 201 Created
+                response.end(JSON.stringify({ message: 'Tag added successfully' })); // Send a success message
+            } catch (error) {
+                console.error('Error parsing JSON or adding tag:', error);
+                response.writeHead(400, { 'Content-Type': 'application/json' }); // 400 Bad Request
+                response.end(JSON.stringify({ error: 'Invalid JSON or tag data' })); // Send an error message
+            }
+        });
+    } else {
+        response.writeHead(405); // 405 Method Not Allowed
+        response.end();
+    }
+};
+
+module.exports = { pairSearch, getParents, addTag };
