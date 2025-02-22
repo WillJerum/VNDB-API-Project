@@ -18,4 +18,20 @@ const pairSearch = (request, response) => {
   }
 };
 
-module.exports = { pairSearch };
+const getParents = (request, response) => {
+    const parsedUrl = url.parse(request.url, true); // Parse the URL
+
+    console.log(parsedUrl.query.id);
+
+    const result = json.getParents(parsedUrl.query.id) // Run helper function to find parents
+
+  if (result) {
+    response.writeHead(200, { 'Content-Type': 'application/json' }); // If results are found
+    response.end(JSON.stringify(result));
+  } else {
+    response.writeHead(404); // If results are not found
+    response.end();
+  }
+};
+
+module.exports = { pairSearch, getParents };

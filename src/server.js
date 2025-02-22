@@ -21,6 +21,9 @@ const onRequest = (request, response) => {
     case '/pairSearch':
       apiHandler.pairSearch(request, response);
       break;
+    case '/getParents':
+      apiHandler.getParents(request, response);
+      break;
     default:
       htmlHandler.getIndex(request, response);
       //apiHandler.notFound(request, response);
