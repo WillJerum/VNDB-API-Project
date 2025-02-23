@@ -24,8 +24,8 @@ const onRequest = (request, response) => {
     case '/getParents':
       apiHandler.getParents(request, response);
       break;
-    case '/addTag':
-      apiHandler.addTag(request, response);
+    case '/updateTag':
+      apiHandler.updateTag(request, response);
       break;
     default:
       htmlHandler.getIndex(request, response);

@@ -16,7 +16,7 @@ const searchJSON = (key, value) => {
 
     switch (key) {
         case 'id':
-           result = jsonData.find(obj => obj[key] == cleanValue);
+            result = jsonData.find(obj => obj[key] == cleanValue);
             break;
         case 'name':
         case 'aliases':
@@ -65,7 +65,61 @@ const addTag = (newTag) => {
     newTag.id = maxId + 1; // Assign next available ID
 
     jsonData.push(newTag);
-    console.log(`Tag "${newTag.name}" has been added at ID ${newTag.id}`);
+    console.log(`Tag '${newTag.name}' has been added at ID ${newTag.id}`);
 };
 
-module.exports = { searchJSON, getParents, addTag };
+
+/**
+ * Function to update a tag by ID (in-memory only, preserves original data for blank form fields)
+ * @param {object} updatedTag - The updated tag data.  Must include the tag's ID.
+ * @returns {object} - An object with status on completion of tasks
+ */
+const editTag = (updatedTag) => {
+
+    console.log(updatedTag.id);
+
+    if (updatedTag.id === undefined || updatedTag.id === null || updatedTag.id === '') {
+        return { bad: true };
+    }
+
+    // Find the index of the tag to update
+    const index = jsonData.findIndex(obj => obj['id'].toString() === updatedTag.id.toString());
+
+    console.log(index); // Helpful for debugging
+
+    if (index === -1) {
+        return { exists: false, updated: false, error: 'Tag not found' };
+    }
+
+    //Get the *existing* tag (for comparison)
+    const existingTag = jsonData[index];
+
+    // Create a copy to avoid modifying the original
+    const updatedTagCopy = JSON.parse(JSON.stringify(updatedTag));
+
+    // Update Tag Data
+    // Iterate through the properties of the updatedTagCopy
+    for (const key in updatedTagCopy) {
+        if (updatedTagCopy.hasOwnProperty(key)) {
+            // If the value is an empty string, keep the original value
+            if (updatedTagCopy[key] === "") {
+                delete updatedTagCopy[key];
+            }
+        }
+    }
+    const mergedTag = { ...existingTag, ...updatedTagCopy };
+
+    // Check if there are any differences
+    if (JSON.stringify(existingTag) === JSON.stringify(mergedTag)) {
+        return { exists: true, updated: false, message: 'No changes detected' };
+    }
+
+    jsonData[index] = mergedTag;
+
+    //Return
+    return { exists: true, updated: true, message: 'Tag updated successfully' };
+};
+
+
+
+module.exports = { searchJSON, getParents, addTag, editTag };

@@ -1,51 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add a Tag</title>
+    <title>VNDB Tag Database</title>
+    <link href="style.css" rel="stylesheet">
 </head>
+
 <body>
-    <h2>Add/Update a Tag</h2>
-    <form id="tagForm">
-        <label for="name">Name:</label>
-        <input type="text" id="name" required><br><br>
 
-        <label for="description">Description:</label>
-        <input type="text" id="description" required><br><br>
+    <h2>Select an Action:</h2>
+    <select id="actionSelect">
+        <option value="select" default>Select an Option</option>
+        <option value="add">Add New Tag</option>
+        <option value="edit">Update Existing Tag</option>
+    </select>
 
-        <label for="aliases">Aliases (comma-separated):</label>
-        <input type="text" id="aliases"><br><br>
+    <div id="updateFormContainer" class="form-container">
+        <h2>Add/Edit a Tag</h2>
+        <form id="updateForm">
 
-        <label for="cat">Category:</label>
-        <input type="text" id="cat" required><br><br>
+            <div class="edit-only" id="editOnlyContainer">
+                <label for="id">ID of Tag to Edit:</label> <!--This will only show when edit is selected in the dropdown-->
+                <input type="number" id="id"><br><br>
+            </div>
 
-        <label for="parents">Parent IDs (comma-separated):</label>
-        <input type="text" id="parents"><br><br>
+            <label for="name">Name:</label>
+            <input type="text" id="name"><br><br>
 
-        <label for="vns">VNs Count:</label>
-        <input type="number" id="vns" required><br><br>
+            <label for="description">Description:</label>
+            <input type="text" id="description"><br><br>
 
-        <label for="meta">Meta:</label>
-        <input type="checkbox" id="meta"><br><br>
+            <label for="aliases">Aliases (comma-separated):</label>
+            <input type="text" id="aliases"><br><br>
 
-        <label for="applicable">Applicable:</label>
-        <input type="checkbox" id="applicable"><br><br>
+            <label for="cat">Category:</label>
+            <input type="text" id="cat"><br><br>
 
-        <label for="searchable">Searchable (VNDB use only):</label>
-        <input type="checkbox" id="searchable" checked><br><br>
+            <label for="parents">Parent IDs (comma-separated):</label>
+            <input type="text" id="parents"><br><br>
 
-        <button type="submit">Add New Tag</button>
-        <button type="update">Update Existing Tag</button>
-    </form>
+            <label for="vns">VNs Count:</label>
+            <input type="number" id="vns"><br><br>
+
+            <label for="meta">Meta:</label>
+            <input type="checkbox" id="meta"><br><br>
+
+            <label for="applicable">Applicable:</label>
+            <input type="checkbox" id="applicable"><br><br>
+
+            <label for="searchable">Searchable (VNDB use only):</label>
+            <input type="checkbox" id="searchable" checked><br><br>
+
+            <label for="searchable">Check this box to send bad data (Ignores other params):</label>
+            <input type="checkbox" id="badData"><br><br>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <section id="content">
+    </section>
 
     <script>
-        document.getElementById("tagForm").addEventListener("add", function(event) {
-            event.preventDefault(); // Prevent default form submission
 
+        // Hook up buttons
+        const actionSelect = document.getElementById("actionSelect");
+        const updateFormContainer = document.getElementById("updateFormContainer");
+        const editOnlyContainer = document.getElementById("editOnlyContainer");
+        const isBadData = document.getElementById("badData");
+
+        // Hook up event listeners
+        actionSelect.addEventListener("change", function () {
+            const selectedValue = actionSelect.value;
+
+            // Hide all forms
+            updateFormContainer.style.display = "none";
+
+            // Show the selected form
+            if (selectedValue === "add") {
+                updateFormContainer.style.display = "block";
+                editOnlyContainer.style.display = "none";
+            } else if (selectedValue === "edit") {
+                updateFormContainer.style.display = "block";
+                editOnlyContainer.style.display = "block";
+            }
+        });
+
+        // Initially hide the forms
+        updateFormContainer.style.display = "none";
+        editOnlyContainer.style.display = "none";
+
+
+        // Add button pressed
+        document.getElementById("updateForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+            let tag;
+            switch (isBadData.checked) {
+            
+            case false:
             // Collect form data
-            const tag = {
+            tag = {
                 name: document.getElementById("name").value,
+                id: document.getElementById("id").value,
                 description: document.getElementById("description").value,
                 aliases: document.getElementById("aliases").value.split(',').map(a => a.trim()).filter(a => a), // Convert to array
                 cat: document.getElementById("cat").value,
@@ -55,18 +113,78 @@
                 applicable: document.getElementById("applicable").checked,
                 searchable: document.getElementById("searchable").checked
             };
+            break;
+
+            case true:
+                tag = {
+                    data: "This data is bad :("
+                };
+        } ;
+
+            // Convert the tag object to a JSON string
+            const tagString = JSON.stringify(tag);
+
+            // Calculate the length of the JSON string in bytes
+            const contentLength = new TextEncoder().encode(tagString).length;
+            
+            // Determine what action to take
+            const actionSelect = document.getElementById("actionSelect");
 
             // Send the tag as a JSON request
-            fetch("/addTag", {
+            fetch("/updateTag", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(tag)
+                headers: {
+                    "Content-Type": "application/json",
+                    "Content-Length": contentLength.toString(),
+                    "Action": actionSelect.value
+                },
+                body: tagString
             })
-            .then(response => response.json())
-            .catch(error => console.error("Error:", error));
-        });
+                .then(response => handleResponse(response))
+                .catch(error => console.error("Error:", error));
+        }
+    );  
 
-        
+        // Response handling
+        const handleResponse = async (response) => {
+            const content = document.getElementById('content');
+
+            switch (response.status) {
+                case 200:
+                    content.innerHTML = `<b>Success</b>`;
+                    break;
+                case 201:
+                    content.innerHTML = `<b>Created</b>`;
+                    break;
+                case 204:
+                    content.innerHTML = `<b>Updated (No Content)</b>`;
+                    return;
+                case 400:
+                    content.innerHTML = `<b>Bad Request</b>`;
+                    break;
+                case 404:
+                    content.innerHTML = `<b>Not Found</b>`;
+                    break;
+                default:
+                    content.innerHTML = `<p>Status Code Not Implemented By Client</p>`;
+                    break;
+            }
+
+            if (response.status !== 204) {
+                try {
+                    const resObj = await response.json();
+                    console.log(resObj);
+                    if (resObj.message && resObj.id) {
+                        content.innerHTML += `<p><strong>Error:</strong> ${resObj.message} (ID: ${resObj.id})</p>`;
+                    } else {
+                        content.innerHTML += `<p>${JSON.stringify(resObj)}</p>`;
+                    }
+                } catch (error) {
+                    console.warn("No valid JSON response", error);
+                }
+            }
+        };
     </script>
 </body>
+
 </html>
