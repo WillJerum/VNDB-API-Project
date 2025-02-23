@@ -7,9 +7,7 @@ const apiHandler = require('./apiResponses.js');
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const onRequest = (request, response) => {
-
   const parsedUrl = url.parse(request.url, true); // Parse the URL
-
 
   switch (parsedUrl.pathname) {
     case '/':
@@ -29,7 +27,7 @@ const onRequest = (request, response) => {
       break;
     default:
       htmlHandler.getIndex(request, response);
-      //apiHandler.notFound(request, response);
+      // apiHandler.notFound(request, response);
       break;
   }
 };
