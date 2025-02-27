@@ -112,4 +112,5 @@ const updateTag = (request, response) => {
   }
 };
 
-module.exports = { pairSearch, getParents, updateTag };
+
+module.exports = { pairSearch, getParents, updateTag, viewOnVNDB };

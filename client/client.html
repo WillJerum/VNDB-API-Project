@@ -53,9 +53,6 @@
             <label for="searchable">Searchable (VNDB use only):</label>
             <input type="checkbox" id="searchable" checked><br><br>
 
-            <label for="searchable">Check this box to send bad data (Ignores other params):</label>
-            <input type="checkbox" id="badData"><br><br>
-
             <button type="submit">Submit</button>
         </form>
     </div>
@@ -69,7 +66,6 @@
         const actionSelect = document.getElementById("actionSelect");
         const updateFormContainer = document.getElementById("updateFormContainer");
         const editOnlyContainer = document.getElementById("editOnlyContainer");
-        const isBadData = document.getElementById("badData");
 
         // Hook up event listeners
         actionSelect.addEventListener("change", function () {
@@ -97,9 +93,7 @@
         document.getElementById("updateForm").addEventListener("submit", function (event) {
             event.preventDefault(); // Prevent default form submission
             let tag;
-            switch (isBadData.checked) {
-            
-            case false:
+
             // Collect form data
             tag = {
                 name: document.getElementById("name").value,
@@ -113,13 +107,9 @@
                 applicable: document.getElementById("applicable").checked,
                 searchable: document.getElementById("searchable").checked
             };
-            break;
 
-            case true:
-                tag = {
-                    data: "This data is bad :("
-                };
-        } ;
+
+
 
             // Convert the tag object to a JSON string
             const tagString = JSON.stringify(tag);
