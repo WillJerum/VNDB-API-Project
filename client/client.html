@@ -13,17 +13,50 @@
     <h2>Select an Action:</h2>
     <select id="actionSelect">
         <option value="select" default>Select an Option</option>
+        <option value="pairSearch">Search for a Tag</option>
         <option value="add">Add New Tag</option>
         <option value="edit">Update Existing Tag</option>
+        <option value="getParents">Find Parents of a Tag</option>
+        <option value="tagTree">Create a Tag Parent Tree</option>
+        <option value="placeholder">Placeholder</option>
     </select>
+    <br><br>
+    <div id="searchBar" class="form-container">
+        <h2 id="actionHeader">Search for a Tag</h2>
+        <!--Extra options for tag searches-->
+        <!--Hidden for other search types-->
+        <div id="searchTypeContainerUpper" class="form-container">
+            <label for="searchType">Search by: </label>
+            <select id="searchType">
+                <option value="name" default>Name</option>
+                <option value="id">ID</option>
+                <option value="cat">Category</option>
+                <option value="parents">Parent ID</option>
+            </select>  
+        </div><br>
+        <!--Search Bar-->
+        <label for="searchTerm" id="searchLabel">Search query: </label>
+        <input type="text" id="searchTerm">
+        <button id="search">Search</button> <br>
+        <!--Extra options for tag searches-->
+        <!--Hidden for other search types-->
+        <div id="searchTypeContainerLower" class="form-container">
+            <h3>Filter Results:</h3>
+            <label for="cont">Content:</label>
+            <input type="checkbox" id="cont">
+            <label for="ero">| Sexual Content:</label>
+            <input type="checkbox" id="ero">
+            <label for="tech">| Technical:</label>
+            <input type="checkbox" id="tech">
+        </div>
+    </div>
 
     <div id="updateFormContainer" class="form-container">
         <h2>Add/Edit a Tag</h2>
         <form id="updateForm">
-
+            <!--This will only show when edit is selected in the dropdown-->
             <div class="edit-only" id="editOnlyContainer">
                 <label for="id">ID of Tag to Edit:</label>
-                <!--This will only show when edit is selected in the dropdown-->
                 <input type="number" id="id"><br><br>
             </div>
 
@@ -68,6 +101,11 @@
 
         // Hook up buttons
         // const actionSelect = document.getElementById("actionSelect");
+        const searchBarContainer = document.getElementById("searchBar");
+        const actionHeader = document.getElementById("actionHeader");
+        const searchTypeContainerUpper = document.getElementById("searchTypeContainerUpper");
+        const searchTypeContainerLower = document.getElementById("searchTypeContainerLower");
+        const searchLabel = document.getElementById("searchLabel");
         const updateFormContainer = document.getElementById("updateFormContainer");
         const editOnlyContainer = document.getElementById("editOnlyContainer");
 
@@ -75,16 +113,56 @@
         actionSelect.addEventListener("change", function () {
             const selectedValue = actionSelect.value;
 
-            // Hide all forms
+            // Hide all outer containers
             updateFormContainer.style.display = "none";
+            searchBarContainer.style.display = "none";
 
-            // Show the selected form
-            if (selectedValue === "add") {
-                updateFormContainer.style.display = "block";
-                editOnlyContainer.style.display = "none";
-            } else if (selectedValue === "edit") {
-                updateFormContainer.style.display = "block";
-                editOnlyContainer.style.display = "block";
+            // Show relevant controls
+            switch (selectedValue) {
+                case "add":
+                    updateFormContainer.style.display = "block";
+                    editOnlyContainer.style.display = "none";
+                    searchBarContainer.style.display = "none";
+                    break;
+                case "edit":
+                    updateFormContainer.style.display = "block";
+                    editOnlyContainer.style.display = "block";
+                    searchBarContainer.style.display = "none";
+                    break;
+                case "pairSearch":
+                    actionHeader.innerHTML = "Search for a Tag";
+                    searchLabel.innerHTML = "Search query:"
+                    searchBarContainer.style.display = "block";
+                    searchTypeContainerUpper.style.display = "block";
+                    searchTypeContainerLower.style.display = "block";
+                    updateFormContainer.style.display = "none";
+                    break;
+                case "getParents":
+                    actionHeader.innerHTML = "Find Direct Parents by Tag ID";
+                    searchLabel.innerHTML = "Child ID:"
+                    searchBarContainer.style.display = "block";
+                    searchTypeContainerUpper.style.display = "none";
+                    searchTypeContainerLower.style.display = "none";
+                    updateFormContainer.style.display = "none";
+                    break;
+                case "tagTree":
+                    actionHeader.innerHTML = "Find Hierarchy of Parents by Tag ID";
+                    searchLabel.innerHTML = "Child ID:";
+                    searchBarContainer.style.display = "block";
+                    searchTypeContainerUpper.style.display = "none";
+                    searchTypeContainerLower.style.display = "none";
+                    updateFormContainer.style.display = "none";
+                    break;
+                case "placeholder":
+                actionHeader.innerHTML = "Placeholder Option";
+                    searchLabel.innerHTML = "Search query:";
+                    searchBarContainer.style.display = "block";
+                    searchTypeContainerUpper.style.display = "none";
+                    searchTypeContainerLower.style.display = "none";
+                    updateFormContainer.style.display = "none";
+                    break;
+                default:
+                    break;
             }
         });
 
