@@ -10,7 +10,7 @@
 
 <body>
 
-    <h2>Select an Action:</h2>
+    <h1>Select an Action:</h1>
     <select id="actionSelect">
         <option value="select" default>Select an Option</option>
         <option value="pairSearch">Search for a Tag</option>
@@ -93,7 +93,12 @@
             <button type="submit">Submit</button>
         </form>
     </div>
-
+    <br><br>
+    <h3>Server Response</h3><br>
+    <!--Response header info goes here-->
+    <section id="status">
+    </section>
+    <!--Actual data goes here-->
     <section id="content">
     </section>
 
@@ -223,6 +228,7 @@
                     "Content-Type": contentType,
                     "Content-Length": contentLength,
                     "Action": actionSelect.value,
+                    "Accept": "application/json"
                 },
                 body: bodyData,
             })
@@ -233,26 +239,26 @@
 
         // Response handling
         const handleResponse = async (response) => {
-            const content = document.getElementById('content');
+            const status = document.getElementById('status');
 
             switch (response.status) {
                 case 200:
-                    content.innerHTML = `<b>Success</b>`;
+                    status.innerHTML = `<b>Success</b>`;
                     break;
                 case 201:
-                    content.innerHTML = `<b>Created</b>`;
+                    status.innerHTML = `<b>Created</b>`;
                     break;
                 case 204:
-                    content.innerHTML = `<b>Updated (No Content)</b>`;
+                    status.innerHTML = `<b>Updated (No Content)</b>`;
                     return;
                 case 400:
-                    content.innerHTML = `<b>Bad Request</b>`;
+                    status.innerHTML = `<b>Bad Request</b>`;
                     break;
                 case 404:
-                    content.innerHTML = `<b>Not Found</b>`;
+                    status.innerHTML = `<b>Not Found</b>`;
                     break;
                 default:
-                    content.innerHTML = `<p>Status Code Not Implemented By Client</p>`;
+                    status.innerHTML = `<p>Status Code Not Implemented By Client</p>`;
                     break;
             }
 
@@ -260,11 +266,7 @@
                 try {
                     const resObj = await response.json();
                     console.log(resObj);
-                    if (resObj.message && resObj.id) {
-                        content.innerHTML += `<p><strong>Error:</strong> ${resObj.message} (ID: ${resObj.id})</p>`;
-                    } else {
-                        content.innerHTML += `<p>${JSON.stringify(resObj)}</p>`;
-                    }
+                    status.innerHTML += `<p>${resObj.message.toString()}</p>`;
                 } catch (error) {
                     console.warn("No valid JSON response", error);
                 }
