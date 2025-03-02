@@ -22,7 +22,8 @@
         <form id="updateForm">
 
             <div class="edit-only" id="editOnlyContainer">
-                <label for="id">ID of Tag to Edit:</label> <!--This will only show when edit is selected in the dropdown-->
+                <label for="id">ID of Tag to Edit:</label>
+                <!--This will only show when edit is selected in the dropdown-->
                 <input type="number" id="id"><br><br>
             </div>
 
@@ -53,6 +54,9 @@
             <label for="searchable">Searchable (VNDB use only):</label>
             <input type="checkbox" id="searchable" checked><br><br>
 
+            <label for="url">Check this box to send request as URL Encoded:</label>
+            <input type="checkbox" id="url"><br><br>
+
             <button type="submit">Submit</button>
         </form>
     </div>
@@ -63,7 +67,7 @@
     <script>
 
         // Hook up buttons
-        const actionSelect = document.getElementById("actionSelect");
+        // const actionSelect = document.getElementById("actionSelect");
         const updateFormContainer = document.getElementById("updateFormContainer");
         const editOnlyContainer = document.getElementById("editOnlyContainer");
 
@@ -109,14 +113,28 @@
             };
 
 
+            //Determine if we should url encode the data or not
+            const urlEncode = document.getElementById("url").checked;
 
+            let bodyData;
+            let contentType;
 
-            // Convert the tag object to a JSON string
-            const tagString = JSON.stringify(tag);
+            if (urlEncode) {
+                const formData = new URLSearchParams();
+                for (const key in tag) {
+                    if (tag.hasOwnProperty(key)) {
+                        formData.append(key, tag[key]);
+                    }
+                }
+                bodyData = formData.toString();
+                contentType = "application/x-www-form-urlencoded";
+            } else {
+                bodyData = JSON.stringify(tag);
+                contentType = "application/json";
+            }
 
-            // Calculate the length of the JSON string in bytes
-            const contentLength = new TextEncoder().encode(tagString).length;
-            
+            const contentLength = new TextEncoder().encode(bodyData).length;
+
             // Determine what action to take
             const actionSelect = document.getElementById("actionSelect");
 
@@ -124,16 +142,16 @@
             fetch("/updateTag", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "Content-Length": contentLength.toString(),
-                    "Action": actionSelect.value
+                    "Content-Type": contentType,
+                    "Content-Length": contentLength,
+                    "Action": actionSelect.value,
                 },
-                body: tagString
+                body: bodyData,
             })
                 .then(response => handleResponse(response))
                 .catch(error => console.error("Error:", error));
         }
-    );  
+        );
 
         // Response handling
         const handleResponse = async (response) => {

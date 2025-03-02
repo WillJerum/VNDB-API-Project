@@ -155,7 +155,7 @@ const buildParentTagTree = (childTagId) => {
   // Create a new object to represent the parent tree
   const parentTree = {
     ...childTag, // Include the child tag's data
-    children: parents, // Add the parent trees as children
+    inherits: parents, // Add the parent trees as children
   };
 
   return parentTree;

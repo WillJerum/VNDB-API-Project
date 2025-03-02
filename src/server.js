@@ -22,6 +22,9 @@ const onRequest = (request, response) => {
     case '/getParents':
       apiHandler.getParents(request, response);
       break;
+    case '/tagTree':
+      apiHandler.tagTree(request, response);
+      break;
     case '/updateTag':
       apiHandler.updateTag(request, response);
       break;
