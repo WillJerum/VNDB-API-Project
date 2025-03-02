@@ -12,17 +12,20 @@ const jsonData = JSON.parse(rawData);
 const prettify = (input) => input.toString().toLowerCase().trim();
 
 /**
- * Function to search for tags based on a key-value pair.
+ * Helper function for searching through a JSON file without filtering.
  * @param {string} key - The key to search for.
  * @param {string|number} value - The value to match.
  * @returns {object|array|null} - The matched object(s) or null if not found.
  */
-const searchJSON = (key, value) => {
+const searchJSONUnfiltered = (key, value) => {
   const cleanValue = prettify(decodeURIComponent(value)); // Clean up response
   let result = {}; // Store result in memory
 
   switch (key) {
     case 'id':
+      if (isNaN(value)) {
+        return result = {message: "Value must be a number."};
+      } 
       result = jsonData.find((obj) => prettify(obj[key]) === cleanValue);
       break;
     case 'name':
@@ -33,6 +36,41 @@ const searchJSON = (key, value) => {
     default: // Case-insensitive partial match
       result = jsonData.filter((obj) => obj[key] && prettify(obj[key]).includes(cleanValue));
       break;
+  }
+  return result;
+};
+
+/**
+ * Function to search for tags based on a key-value pair and filter results.
+ * @param {string} key - The key to search for.
+ * @param {string|number} value - The value to match.
+ * @param {string} filter - 3 digit number stringrepresenting filter settings.
+ * 0 for off, 1 for on. Ordered as cont, ero, tech. (Ex. '010')
+ * @returns {object|array|null} - The matched object(s) or null if not found.
+ */
+const searchJSON = (key, value, filter) => {
+  let result = {}; // Store result in memory
+  result = searchJSONUnfiltered(key, value); // make sure filter always comes in as a string
+  const cleanFilter = prettify(decodeURIComponent(filter));
+
+  if (filter === '000') { // if no filter settings are applied
+    return result; // give unfiltered results
+  }
+
+  // Convert filter to array of numbers
+  const numbers = cleanFilter.split('');
+  console.log(numbers);
+  const filterParams = numbers.map((number) => parseInt(number, 10));
+  console.log(filterParams);
+
+  if (filterParams[0] === 1) { //
+    result = result.filter((obj) => (obj.cat && prettify(obj.cat).includes('cont')));
+  }
+  if (filterParams[1] === 1) {
+    result = result.filter((obj) => (obj.cat && prettify(obj.cat).includes('ero')));
+  }
+  if (filterParams[2] === 1) {
+    result = result.filter((obj) => (obj.cat && prettify(obj.cat).includes('tech')));
   }
 
   return result;

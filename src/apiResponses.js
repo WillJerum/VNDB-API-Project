@@ -6,13 +6,21 @@ const pairSearch = (request, response) => {
   const parsedUrl = url.parse(request.url, true); // Parse the URL
   console.log(parsedUrl.query.key);
   console.log(parsedUrl.query.value);
+  console.log(parsedUrl.query.filt);
 
-  const result = json.searchJSON(parsedUrl.query.key, parsedUrl.query.value); // fuzzy search
+  // fuzzy search
+  const result = json.searchJSON(parsedUrl.query.key, parsedUrl.query.value, parsedUrl.query.filt);
 
   if (result) {
+    if (result.error) { 
+      const responseObj = JSON.stringify(result);
+      response.writeHead(400, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(responseObj) });
+      response.end(responseObj);
+    } else {
     const responseObj = JSON.stringify(result);
     response.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(responseObj) }); // If results are found
     response.end(JSON.stringify(result));
+    }
   } else {
     response.writeHead(404); // If results are not found
     response.end();

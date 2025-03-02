@@ -32,12 +32,14 @@
                 <option value="id">ID</option>
                 <option value="cat">Category</option>
                 <option value="parents">Parent ID</option>
-            </select>  
+            </select>
         </div><br>
         <!--Search Bar-->
         <label for="searchTerm" id="searchLabel">Search query: </label>
         <input type="text" id="searchTerm">
         <button id="search">Search</button> <br>
+        <label for="head">Check this box to send as HEAD request: </label>
+        <input type="checkbox" id="head">
         <!--Extra options for tag searches-->
         <!--Hidden for other search types-->
         <div id="searchTypeContainerLower" class="form-container">
@@ -99,8 +101,8 @@
     <section id="status">
     </section>
     <!--Actual data goes here-->
-    <section id="content">
-    </section>
+    <pre id="content">
+    </pre>
 
     <script>
 
@@ -159,7 +161,7 @@
                     updateFormContainer.style.display = "none";
                     break;
                 case "placeholder":
-                actionHeader.innerHTML = "Placeholder Option";
+                    actionHeader.innerHTML = "Placeholder Option";
                     searchLabel.innerHTML = "Search query:";
                     searchBarContainer.style.display = "block";
                     searchTypeContainerUpper.style.display = "none";
@@ -237,6 +239,93 @@
         }
         );
 
+        // Search button pressed
+        document.getElementById("search").addEventListener("click", function (event) {
+            event.preventDefault(); // Prevent default 
+
+            // Start building url
+            let url = '/'
+            let params = '';
+            url += actionSelect.value.toString(); // adds action to fetch
+            url += '?'; // prepare url to receive parameters
+
+            switch (actionSelect.value) {
+                case 'pairSearch':
+                    const searchType = document.getElementById("searchType");
+                    params += 'key=' + encodeURIComponent(searchType.value);
+                    const searchTerm = document.getElementById("searchTerm");
+                    params += '&value=' + encodeURIComponent(searchTerm.value);
+                    params += '&filt=' + encodeURIComponent(buildFilter());
+                    break;
+                case 'getParents':
+                    // Add logic to build parameters for 'getParents'
+                    break;
+                case 'tagTree':
+                    // Add logic to build parameters for 'tagTree'
+                    break;
+                case 'placeholder':
+                    break;
+                default:
+                    break;
+            }
+
+            url += params; // Append parameters to the URL
+
+            // Calculate content length
+            const contentLength = new TextEncoder().encode(params).length;
+
+            // Check if we're making a GET or HEAD request
+            let fetchMethod;
+            const isHead = document.getElementById('head').checked;
+            if (isHead) {
+                fetchMethod = "HEAD";
+            } else {
+                fetchMethod = "GET";
+            }
+
+            fetch(url, {
+                method: fetchMethod,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Content-Length": contentLength.toString(),
+                    "Accept": "application/json"
+                },
+            })
+                .then(response => handleResponse(response))
+                .catch(error => console.error("Error:", error));
+        });
+
+
+        // Helper function to read filter settings
+        const buildFilter = () => {
+            // Find filter settings
+            const filter1 = document.getElementById('cont');
+            const filter2 = document.getElementById('ero');
+            const filter3 = document.getElementById('tech');
+            // Create empty string
+            let filterSetting = '';
+            // Build filter based on settings
+            if (filter1.checked) {
+                filterSetting += '1';
+            } else {
+                filterSetting += '0';
+            }
+
+            if (filter2.checked) {
+                filterSetting += '1';
+            } else {
+                filterSetting += '0';
+            }
+
+            if (filter3.checked) {
+                filterSetting += '1';
+            } else {
+                filterSetting += '0';
+            }
+
+            return filterSetting;
+        }
+
         // Response handling
         const handleResponse = async (response) => {
             const status = document.getElementById('status');
@@ -266,9 +355,11 @@
                 try {
                     const resObj = await response.json();
                     console.log(resObj);
-                    status.innerHTML += `<p>${resObj.message.toString()}</p>`;
+                    if (resObj && !resObj.message) { content.innerHTML = `<p> ${JSON.stringify(resObj, undefined, 2)}</p>`; };
+                    if (resObj.message) { status.innerHTML = `<p>${resObj.message.toString()}</p>`; };
                 } catch (error) {
                     console.warn("No valid JSON response", error);
+                    content.innerHTML = '';
                 }
             }
         };
