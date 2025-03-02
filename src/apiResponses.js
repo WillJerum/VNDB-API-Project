@@ -120,8 +120,8 @@ const updateTag = (request, response) => {
   }
 };
 
-const tagTree = (request, response) => {
+/* const tagTree = (request, response) => {
 
-};
+}; */
 
 module.exports = { pairSearch, getParents, updateTag };

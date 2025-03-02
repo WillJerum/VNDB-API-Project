@@ -50,10 +50,10 @@ const getParents = (id) => {
 
   if (!childTag || !Array.isArray(childTag.parents)) return null; // returns null if tag is invalid
 
-  for (const parentId of childTag.parents) {
+  childTag.parents.forEach((parentId) => { // Use forEach instead of for...of
     const parentTag = jsonData.find((obj) => obj.id === parentId);
     if (parentTag) result.push(parentTag);
-  }
+  });
 
   return result.length > 0 ? result : null; // Returns result if array is not empty, null otherwise
 };
@@ -112,14 +112,12 @@ const editTag = (updatedTag) => {
 
   // Update Tag Data
   // Iterate through the properties of the updatedTagCopy
-  for (const key in updatedTagCopy) {
-    if (updatedTagCopy.hasOwnProperty(key)) {
-      // If the value is an empty string, keep the original value
-      if (updatedTagCopy[key] === '') {
-        delete updatedTagCopy[key];
-      }
+  Object.keys(updatedTagCopy).forEach((key) => {
+    if (updatedTagCopy[key] === '') {
+      delete updatedTagCopy[key];
     }
-  }
+  });
+
   const mergedTag = { ...existingTag, ...updatedTagCopy };
 
   // Check if there are any differences
