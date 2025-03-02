@@ -40,7 +40,7 @@ const searchJSON = (key, value) => {
 
 /**
  * Function to create an array of parents of a tag given the child tag id.
- * @param {string} id - The child tag id to search for.
+ * @param {number} id - The child tag id to search for.
  * @returns {object|array|null} - The matched object(s) or null if not found.
  */
 const getParents = (id) => {
@@ -65,15 +65,15 @@ const getParents = (id) => {
  */
 const addTag = (newTag) => {
   // Dynamically assign ID
-  const maxId = jsonData.reduce((max, obj) => (obj.id > max ? obj.id : max), 0);
+  const maxId = parseInt(jsonData.reduce((max, obj) => (obj.id > max ? obj.id : max), 0), 10);
   const newTagWithID = {
     name: newTag.name,
-    id: maxId + 1,
+    id: parseInt(maxId, 10) + 1, // Probably redundant, but just to be safe
     description: newTag.description,
     aliases: newTag.aliases,
     cat: newTag.cat,
     parents: newTag.parents,
-    vns: newTag.vns,
+    vns: parseInt(newTag.vns, 10),
     meta: newTag.meta,
     applicable: newTag.applicable,
     searchable: newTag.searchable,
