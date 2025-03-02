@@ -61,7 +61,7 @@ const getParents = (id) => {
 /**
  * Function to create a new tag
  * @param {object} tag - tag data to be added
- * @returns {none} - This function returns nothing.
+ * @returns {int} - The ID of the new tag
  */
 const addTag = (newTag) => {
   // Dynamically assign ID
@@ -81,6 +81,7 @@ const addTag = (newTag) => {
 
   jsonData.push(newTagWithID);
   console.log(`Tag '${newTagWithID.name}' has been added at ID ${newTagWithID.id}`);
+  return (newTagWithID.id);
 };
 
 /**

@@ -58,20 +58,21 @@ const addTag = (request, response) => {
     request.on('data', (chunk) => {
       body += chunk.toString(); // Convert buffer to string
     });
-    request.on('end', () => {
+    request.on('end', () => { 
       try {
         let newTag = {};
-        if (request.headers['content-type'] === 'application/x-www-form-urlencoded') {
+        // Checks if URL encoded
+        if (request.headers['content-type'] === 'application/x-www-form-urlencoded') { 
           const urlParams = new URLSearchParams(body);
           for (const [key, value] of urlParams) {
             newTag[key] = value;
           }
-
+        // Defaults to JSON
         } else {
           newTag = JSON.parse(body);
         }
-        const message = JSON.stringify({ message: 'Tag added successfully' });
-        json.addTag(newTag);
+        let newId = json.addTag(newTag); // Pushes new tag and gets ID
+        const message = JSON.stringify({ message: `Tag added successfully at ID ${newId}` });
         response.writeHead(201, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(message) }); // 201 Created
         response.end(message); // Send a success message
       } catch (error) {
@@ -96,12 +97,14 @@ const editTag = (request, response) => {
     request.on('end', () => {
       try {
         let updatedTag = {};
+        // Checks if URL encoded
         if (request.headers['content-type'] === 'application/x-www-form-urlencoded') {
           const urlParams = new URLSearchParams(body);
           for (const [key, value] of urlParams) {
             updatedTag[key] = value;
           }
-        } else { // Default to JSON
+        // Defaults to JSON
+        } else {
 
           updatedTag = JSON.parse(body);
         }
