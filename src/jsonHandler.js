@@ -5,28 +5,33 @@ const rawData = fs.readFileSync('./src/tags.json');
 const jsonData = JSON.parse(rawData);
 
 /**
+ * Helper function to clean up search params so eslint stops yelling at me
+ * @param {string|int} input - Input to clean up
+ * @returns {string} - The clean string
+ */
+const prettify = (input) => input.toString().toLowerCase().trim();
+
+/**
  * Function to search for tags based on a key-value pair.
  * @param {string} key - The key to search for.
  * @param {string|number} value - The value to match.
  * @returns {object|array|null} - The matched object(s) or null if not found.
  */
 const searchJSON = (key, value) => {
-  const cleanValue = decodeURIComponent(value).toLowerCase().trim(); // Clean up response
+  const cleanValue = prettify(decodeURIComponent(value)); // Clean up response
   let result = {}; // Store result in memory
 
   switch (key) {
     case 'id':
-      result = jsonData.find((obj) => obj[key] === cleanValue);
+      result = jsonData.find((obj) => prettify(obj[key]) === cleanValue);
       break;
     case 'name':
     case 'aliases':
-      result = jsonData.filter((obj) => 
-        (obj.aliases && obj.aliases.toString().toLowerCase().includes(cleanValue))
-        || (obj.name && obj.name.toString().toLowerCase().includes(cleanValue)));
+      result = jsonData.filter((obj) => (obj.aliases && prettify(obj.aliases).includes(cleanValue))
+        || (obj.name && prettify(obj.name).includes(cleanValue)));
       break;
     default: // Case-insensitive partial match
-      result = jsonData.filter((obj) => 
-        obj[key] && obj[key].toString().toLowerCase().includes(cleanValue));
+      result = jsonData.filter((obj) => obj[key] && prettify(obj[key]).includes(cleanValue));
       break;
   }
 
@@ -61,10 +66,21 @@ const getParents = (id) => {
 const addTag = (newTag) => {
   // Dynamically assign ID
   const maxId = jsonData.reduce((max, obj) => (obj.id > max ? obj.id : max), 0);
-  newTag.id = maxId + 1; // Assign next available ID
+  const newTagWithID = {
+    name: newTag.name,
+    id: maxId + 1,
+    description: newTag.description,
+    aliases: newTag.aliases,
+    cat: newTag.cat,
+    parents: newTag.parents,
+    vns: newTag.vns,
+    meta: newTag.meta,
+    applicable: newTag.applicable,
+    searchable: newTag.searchable,
+  };
 
-  jsonData.push(newTag);
-  console.log(`Tag '${newTag.name}' has been added at ID ${newTag.id}`);
+  jsonData.push(newTagWithID);
+  console.log(`Tag '${newTagWithID.name}' has been added at ID ${newTagWithID.id}`);
 };
 
 /**
@@ -117,6 +133,36 @@ const editTag = (updatedTag) => {
   return { exists: true, updated: true, message: 'Tag updated successfully' };
 };
 
+/**
+ * Function to recursively build a tree of parent tags for a given child tag ID.
+ * @param {number} childTagId - The ID of the child tag.
+ * @returns {object | null} - A nested JSON object representing the parent hierarchy, or null.
+ */
+const buildParentTagTree = (childTagId) => {
+  const childTag = searchJSON('id', childTagId);
+
+  if (!childTag) {
+    return null; // Tag not found
+  }
+
+  const parentIds = childTag.parents;
+
+  if (!parentIds || parentIds.length === 0) {
+    return childTag; // Base case
+  }
+
+  // Recursive case
+  const parents = parentIds.map((parentId) => buildParentTagTree(parentId));
+
+  // Create a new object to represent the parent tree
+  const parentTree = {
+    ...childTag, // Include the child tag's data
+    children: parents, // Add the parent trees as children
+  };
+
+  return parentTree;
+};
+
 module.exports = {
-  searchJSON, getParents, addTag, editTag,
+  searchJSON, getParents, addTag, editTag, buildParentTagTree,
 };
