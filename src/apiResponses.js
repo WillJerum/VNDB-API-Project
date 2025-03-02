@@ -12,14 +12,14 @@ const pairSearch = (request, response) => {
   const result = json.searchJSON(parsedUrl.query.key, parsedUrl.query.value, parsedUrl.query.filt);
 
   if (result) {
-    if (result.error) { 
+    if (result.error) {
       const responseObj = JSON.stringify(result);
       response.writeHead(400, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(responseObj) });
       response.end(responseObj);
     } else {
-    const responseObj = JSON.stringify(result);
-    response.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(responseObj) }); // If results are found
-    response.end(JSON.stringify(result));
+      const responseObj = JSON.stringify(result);
+      response.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(responseObj) }); // If results are found
+      response.end(JSON.stringify(result));
     }
   } else {
     response.writeHead(404); // If results are not found

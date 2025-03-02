@@ -23,9 +23,10 @@ const searchJSONUnfiltered = (key, value) => {
 
   switch (key) {
     case 'id':
-      if (isNaN(value)) {
-        return result = {message: "Value must be a number."};
-      } 
+      if (Number.isNaN(value)) {
+        result = { message: 'Value must be a number.' };
+        return result;
+      }
       result = jsonData.find((obj) => prettify(obj[key]) === cleanValue);
       break;
     case 'name':
