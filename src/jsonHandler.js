@@ -1,5 +1,4 @@
 const fs = require('fs');
-
 // Load and parse the JSON file
 const rawData = fs.readFileSync('./src/tags.json');
 const jsonData = JSON.parse(rawData);
@@ -23,7 +22,7 @@ const searchJSONUnfiltered = (key, value) => {
 
   switch (key) {
     case 'id':
-      if (Number.isNaN(value)) {
+      if (parseFloat(value) !== +value) {
         result = { message: 'Value must be a number.' };
         return result;
       }
@@ -45,7 +44,7 @@ const searchJSONUnfiltered = (key, value) => {
  * Function to search for tags based on a key-value pair and filter results.
  * @param {string} key - The key to search for.
  * @param {string|number} value - The value to match.
- * @param {string} filter - 3 digit number stringrepresenting filter settings.
+ * @param {string} filter - 3 digit number string representing filter settings.
  * 0 for off, 1 for on. Ordered as cont, ero, tech. (Ex. '010')
  * @returns {object|array|null} - The matched object(s) or null if not found.
  */
@@ -56,6 +55,11 @@ const searchJSON = (key, value, filter) => {
 
   if (filter === '000') { // if no filter settings are applied
     return result; // give unfiltered results
+  }
+
+  if (key === 'id') {
+    result = { message: 'Result cannot be filtered when searching by ID. Please change your search parameters and try again.' };
+    return result;
   }
 
   // Convert filter to array of numbers
@@ -85,7 +89,7 @@ const searchJSON = (key, value, filter) => {
 const getParents = (id) => {
   const result = []; // Result will be stored in memory as an empty object to start
 
-  const childTag = searchJSON('id', id); // Finds child tag containing list of parents
+  const childTag = searchJSONUnfiltered('id', id); // Finds child tag containing list of parents
 
   if (!childTag || !Array.isArray(childTag.parents)) return null; // returns null if tag is invalid
 
@@ -177,7 +181,7 @@ const editTag = (updatedTag) => {
  * @returns {object | null} - A nested JSON object representing the parent hierarchy, or null.
  */
 const buildParentTagTree = (childTagId) => {
-  const childTag = searchJSON('id', childTagId);
+  const childTag = searchJSONUnfiltered('id', childTagId);
 
   if (!childTag) {
     return null; // Tag not found
@@ -201,6 +205,33 @@ const buildParentTagTree = (childTagId) => {
   return parentTree;
 };
 
+// Function pulled from Mozilla developer documentation
+// Gets a random integer between two inclusive values
+function getRandomIntInclusive(min, max) {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
+}
+
+/**
+ * Returns a random tag from the database
+ * @returns {object} - Random tag data
+ */
+const getRandomTag = () => {
+  // Find the range of Ids
+  const maxId = parseInt(jsonData.reduce((max, obj) => (obj.id > max ? obj.id : max), 0), 10);
+  const randId = getRandomIntInclusive(1, maxId);
+  const result = searchJSON('id', randId, '000');
+  console.log(result);
+  if (!result) {
+    // VNDB has some tags that have been delisted, and their IDs
+    // are not present in the database.
+    // If tag at random ID has been delisted, search again.
+    return getRandomTag();
+  }
+  return result;
+};
+
 module.exports = {
-  searchJSON, getParents, addTag, editTag, buildParentTagTree,
+  searchJSON, getParents, addTag, editTag, buildParentTagTree, getRandomTag,
 };

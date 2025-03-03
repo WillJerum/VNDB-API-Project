@@ -60,6 +60,19 @@ const tagTree = (request, response) => {
   }
 };
 
+const getRandomTag = (request, response) => {
+  const result = json.getRandomTag();
+  if (result) {
+    const responseObj = JSON.stringify(result);
+    response.writeHead(200, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(responseObj) }); // If results are found
+    response.end(responseObj);
+  } else {
+    const message = JSON.stringify({ error: 'Tag not found' });
+    response.writeHead(404, { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(message) });
+    response.end(message);
+  }
+};
+
 const addTag = (request, response) => {
   if (request.method === 'POST') {
     let body = '';
@@ -163,5 +176,5 @@ const updateTag = (request, response) => {
 };
 
 module.exports = {
-  pairSearch, getParents, tagTree, updateTag,
+  pairSearch, getParents, tagTree, updateTag, getRandomTag,
 };

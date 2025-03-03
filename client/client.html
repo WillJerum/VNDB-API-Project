@@ -18,7 +18,7 @@
         <option value="edit">Update Existing Tag</option>
         <option value="getParents">Find Parents of a Tag</option>
         <option value="tagTree">Create a Tag Parent Tree</option>
-        <option value="placeholder">Placeholder</option>
+        <option value="getRandomTag">View a Random Tag</option>
     </select>
     <br><br>
     <div id="searchBar" class="form-container">
@@ -113,6 +113,7 @@
         const searchTypeContainerUpper = document.getElementById("searchTypeContainerUpper");
         const searchTypeContainerLower = document.getElementById("searchTypeContainerLower");
         const searchLabel = document.getElementById("searchLabel");
+        const searchTerm = document.getElementById("searchTerm");
         const updateFormContainer = document.getElementById("updateFormContainer");
         const editOnlyContainer = document.getElementById("editOnlyContainer");
 
@@ -142,6 +143,7 @@
                     searchBarContainer.style.display = "block";
                     searchTypeContainerUpper.style.display = "block";
                     searchTypeContainerLower.style.display = "block";
+                    searchTerm.style.display = "block";
                     updateFormContainer.style.display = "none";
                     break;
                 case "getParents":
@@ -150,6 +152,7 @@
                     searchBarContainer.style.display = "block";
                     searchTypeContainerUpper.style.display = "none";
                     searchTypeContainerLower.style.display = "none";
+                    searchTerm.style.display = "block";
                     updateFormContainer.style.display = "none";
                     break;
                 case "tagTree":
@@ -158,14 +161,16 @@
                     searchBarContainer.style.display = "block";
                     searchTypeContainerUpper.style.display = "none";
                     searchTypeContainerLower.style.display = "none";
+                    searchTerm.style.display = "block";
                     updateFormContainer.style.display = "none";
                     break;
-                case "placeholder":
-                    actionHeader.innerHTML = "Placeholder Option";
-                    searchLabel.innerHTML = "Search query:";
+                case "getRandomTag":
+                    actionHeader.innerHTML = "Press 'Search' for a random tag.";
+                    searchLabel.innerHTML = "Click Here -> ";
                     searchBarContainer.style.display = "block";
                     searchTypeContainerUpper.style.display = "none";
                     searchTypeContainerLower.style.display = "none";
+                    searchTerm.style.display = "none";
                     updateFormContainer.style.display = "none";
                     break;
                 default:
@@ -243,6 +248,8 @@
         document.getElementById("search").addEventListener("click", function (event) {
             event.preventDefault(); // Prevent default 
 
+            const searchTerm = document.getElementById("searchTerm");
+
             // Start building url
             let url = '/'
             let params = '';
@@ -253,17 +260,14 @@
                 case 'pairSearch':
                     const searchType = document.getElementById("searchType");
                     params += 'key=' + encodeURIComponent(searchType.value);
-                    const searchTerm = document.getElementById("searchTerm");
                     params += '&value=' + encodeURIComponent(searchTerm.value);
                     params += '&filt=' + encodeURIComponent(buildFilter());
                     break;
                 case 'getParents':
-                    // Add logic to build parameters for 'getParents'
-                    break;
                 case 'tagTree':
-                    // Add logic to build parameters for 'tagTree'
+                    params += 'id=' + encodeURIComponent(searchTerm.value);
                     break;
-                case 'placeholder':
+                case 'getRandomTag':
                     break;
                 default:
                     break;

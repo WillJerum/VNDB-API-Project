@@ -28,6 +28,9 @@ const onRequest = (request, response) => {
     case '/updateTag':
       apiHandler.updateTag(request, response);
       break;
+    case '/getRandomTag':
+      apiHandler.getRandomTag(request, response);
+      break;
     default:
       htmlHandler.getIndex(request, response);
       // apiHandler.notFound(request, response);
